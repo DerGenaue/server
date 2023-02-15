@@ -253,7 +253,7 @@ class ShareAPIControllerTest extends TestCase {
 			->method('lock')
 			->with(\OCP\Lock\ILockingProvider::LOCK_SHARED);
 
-		$expected = new DataResponse();
+		$expected = new DataResponse(\stdClass::class);
 		$result = $this->ocs->deleteShare(42);
 
 		$this->assertInstanceOf(get_class($expected), $result);
