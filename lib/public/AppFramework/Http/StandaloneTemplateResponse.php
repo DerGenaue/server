@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2019, Roeland Jago Douma <roeland@famdouma.nl>
  *
  * @author Roeland Jago Douma <roeland@famdouma.nl>
+ * @author Kate Döen <kate.doeen@nextcloud.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -25,6 +26,8 @@ declare(strict_types=1);
  */
 namespace OCP\AppFramework\Http;
 
+use OCP\AppFramework\Http;
+
 /**
  * A template response that does not emit the loadAdditionalScripts events.
  *
@@ -32,6 +35,8 @@ namespace OCP\AppFramework\Http;
  * full nextcloud UI. Like the 2FA page, or the grant page in the login flow.
  *
  * @since 16.0.0
+ * @template S of Http::STATUS_*
+ * @template-extends TemplateResponse<Http::STATUS_*>
  */
 class StandaloneTemplateResponse extends TemplateResponse {
 }

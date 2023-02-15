@@ -9,6 +9,7 @@
  * @author Roeland Jago Douma <roeland@famdouma.nl>
  * @author Thomas Müller <thomas.mueller@tmit.eu>
  * @author Thomas Tanghus <thomas@tanghus.net>
+ * @author Kate Döen <kate.doeen@nextcloud.com>
  *
  * @license AGPL-3.0
  *
@@ -27,31 +28,35 @@
  */
 namespace OCP\AppFramework\Http;
 
+use JsonSerializable;
 use OCP\AppFramework\Http;
 
 /**
  * A renderer for JSON calls
  * @since 6.0.0
+ *
+ * @template-covariant D of array|\stdClass::class|JsonSerializable
+ * @template S of Http::STATUS_*
+ * @template-extends Response<Http::STATUS_*>
  */
 class JSONResponse extends Response {
 	/**
 	 * response data
-	 * @var array|object
+	 * @var D
 	 */
 	protected $data;
 
 
 	/**
 	 * constructor of JSONResponse
-	 * @param array|object $data the object or array that should be transformed
-	 * @param int $statusCode the Http status code, defaults to 200
+	 * @param D $data the object or array that should be transformed
+	 * @param S $statusCode the Http status code, defaults to 200
 	 * @since 6.0.0
 	 */
 	public function __construct($data = [], $statusCode = Http::STATUS_OK) {
-		parent::__construct();
+		parent::__construct($statusCode);
 
 		$this->data = $data;
-		$this->setStatus($statusCode);
 		$this->addHeader('Content-Type', 'application/json; charset=utf-8');
 	}
 
@@ -68,7 +73,8 @@ class JSONResponse extends Response {
 
 	/**
 	 * Sets values in the data json array
-	 * @param array|object $data an array or object which will be transformed
+	 * @psalm-suppress InvalidTemplateParam
+	 * @param D $data an array or object which will be transformed
 	 *                             to JSON
 	 * @return JSONResponse Reference to this object
 	 * @since 6.0.0 - return value was added in 7.0.0
@@ -82,7 +88,7 @@ class JSONResponse extends Response {
 
 	/**
 	 * Used to get the set parameters
-	 * @return array the data
+	 * @return D the data
 	 * @since 6.0.0
 	 */
 	public function getData() {

@@ -5,6 +5,7 @@
  * @author Christoph Wurst <christoph@winzerhof-wurst.at>
  * @author Joas Schilling <coding@schilljs.com>
  * @author Roeland Jago Douma <roeland@famdouma.nl>
+ * @author Kate Döen <kate.doeen@nextcloud.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -27,12 +28,18 @@ namespace OC\AppFramework\OCS;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\OCSController;
 
+/**
+ * @psalm-import-type DataResponseType from Http\DataResponse
+ * @template-covariant D of DataResponseType
+ * @template S of Http::STATUS_*
+ * @template-extends BaseResponse<DataResponseType, Http::STATUS_*>
+ */
 class V1Response extends BaseResponse {
 	/**
 	 * The V1 endpoint has very limited http status codes basically everything
 	 * is status 200 except 401
 	 *
-	 * @return int
+	 * @return Http::STATUS_UNAUTHORIZED|Http::STATUS_OK
 	 */
 	public function getStatus() {
 		$status = parent::getStatus();

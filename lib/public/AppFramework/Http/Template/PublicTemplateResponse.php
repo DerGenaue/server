@@ -25,12 +25,15 @@
 namespace OCP\AppFramework\Http\Template;
 
 use InvalidArgumentException;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
 
 /**
  * Class PublicTemplateResponse
  *
  * @since 14.0.0
+ * @template S of Http::STATUS_*
+ * @template-extends TemplateResponse<Http::STATUS_*>
  */
 class PublicTemplateResponse extends TemplateResponse {
 	private $headerTitle = '';

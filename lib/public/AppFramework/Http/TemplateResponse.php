@@ -10,6 +10,7 @@
  * @author Roeland Jago Douma <roeland@famdouma.nl>
  * @author Thomas Müller <thomas.mueller@tmit.eu>
  * @author Thomas Tanghus <thomas@tanghus.net>
+ * @author Kate Döen <kate.doeen@nextcloud.com>
  *
  * @license AGPL-3.0
  *
@@ -28,9 +29,14 @@
  */
 namespace OCP\AppFramework\Http;
 
+use OCP\AppFramework\Http;
+
 /**
  * Response for a normal template
  * @since 6.0.0
+ *
+ * @template S of Http::STATUS_*
+ * @template-extends Response<Http::STATUS_*>
  */
 class TemplateResponse extends Response {
 	/**
@@ -98,11 +104,12 @@ class TemplateResponse extends Response {
 	 * @param array $params an array of parameters which should be passed to the
 	 * template
 	 * @param string $renderAs how the page should be rendered, defaults to user
+	 * @param S $statusCode
 	 * @since 6.0.0 - parameters $params and $renderAs were added in 7.0.0
 	 */
 	public function __construct($appName, $templateName, array $params = [],
-								$renderAs = self::RENDER_AS_USER) {
-		parent::__construct();
+								$renderAs = self::RENDER_AS_USER, $statusCode = Http::STATUS_OK) {
+		parent::__construct($statusCode);
 
 		$this->templateName = $templateName;
 		$this->appName = $appName;

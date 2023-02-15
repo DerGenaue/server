@@ -4,6 +4,7 @@
  *
  * @author Christoph Wurst <christoph@winzerhof-wurst.at>
  * @author Roeland Jago Douma <roeland@famdouma.nl>
+ * @author Kate Döen <kate.doeen@nextcloud.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -26,12 +27,18 @@ namespace OC\AppFramework\OCS;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\OCSController;
 
+/**
+ * @psalm-import-type DataResponseType from Http\DataResponse
+ * @template-covariant D of DataResponseType
+ * @template S of Http::STATUS_*
+ * @template-extends BaseResponse<DataResponseType, Http::STATUS_*>
+ */
 class V2Response extends BaseResponse {
 	/**
 	 * The V2 endpoint just passes on status codes.
 	 * Of course we have to map the OCS specific codes to proper HTTP status codes
 	 *
-	 * @return int
+	 * @return Http::STATUS_*
 	 */
 	public function getStatus() {
 		$status = parent::getStatus();

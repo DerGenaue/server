@@ -102,7 +102,7 @@ class OCSMiddleware extends Middleware {
 			if ($response->getStatus() === Http::STATUS_UNAUTHORIZED) {
 				$message = '';
 				if ($response instanceof JSONResponse) {
-					/** @var DataResponse $response */
+					/** @var DataResponse<array, Http::STATUS_UNAUTHORIZED> $response */
 					$message = $response->getData()['message'];
 				}
 
@@ -111,7 +111,7 @@ class OCSMiddleware extends Middleware {
 			if ($response->getStatus() === Http::STATUS_FORBIDDEN) {
 				$message = '';
 				if ($response instanceof JSONResponse) {
-					/** @var DataResponse $response */
+					/** @var DataResponse<array, Http::STATUS_FORBIDDEN> $response */
 					$message = $response->getData()['message'];
 				}
 
