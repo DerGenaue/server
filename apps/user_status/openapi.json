@@ -1,0 +1,1163 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "user_status",
+        "description": "User status",
+        "license": {
+            "name": "agpl"
+        },
+        "version": "1.7.0"
+    },
+    "paths": {
+        "/ocs/v2.php/apps/user_status/api/v1/statuses": {
+            "get": {
+                "tags": [
+                    "statuses"
+                ],
+                "summary": "Find statuses of users",
+                "operationId": "statuses-find-all",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Maximum number of statuses to find",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Offset for finding statuses",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "nullable": true,
+                            "default": null
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Public"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ]
+            }
+        },
+        "/ocs/v2.php/apps/user_status/api/v1/statuses/{userId}": {
+            "get": {
+                "tags": [
+                    "statuses"
+                ],
+                "summary": "Find the status of a user",
+                "operationId": "statuses-find",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "ID of the user",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The status was found successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Public"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The user was not found",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ]
+            }
+        },
+        "/ocs/v2.php/apps/user_status/api/v1/user_status": {
+            "get": {
+                "tags": [
+                    "user_status"
+                ],
+                "summary": "Get the status of the current user",
+                "operationId": "user_status-get-status",
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The status was found successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Private"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The user was not found",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ]
+            }
+        },
+        "/ocs/v2.php/apps/user_status/api/v1/user_status/status": {
+            "put": {
+                "tags": [
+                    "user_status"
+                ],
+                "summary": "Update the status type of the current user",
+                "operationId": "user_status-set-status",
+                "parameters": [
+                    {
+                        "name": "statusType",
+                        "in": "query",
+                        "description": "The new status type",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The status was updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Private"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The status type is invalid",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ]
+            }
+        },
+        "/ocs/v2.php/apps/user_status/api/v1/user_status/message/predefined": {
+            "put": {
+                "tags": [
+                    "user_status"
+                ],
+                "summary": "Set the message to a predefined message for the current user",
+                "operationId": "user_status-set-predefined-message",
+                "parameters": [
+                    {
+                        "name": "messageId",
+                        "in": "query",
+                        "description": "ID of the predefined message",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "clearAt",
+                        "in": "query",
+                        "description": "When the message should be cleared",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The message was updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Private"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The clearAt or message-id is invalid",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ]
+            }
+        },
+        "/ocs/v2.php/apps/user_status/api/v1/user_status/message/custom": {
+            "put": {
+                "tags": [
+                    "user_status"
+                ],
+                "summary": "Set the message to a custom message for the current user",
+                "operationId": "user_status-set-custom-message",
+                "parameters": [
+                    {
+                        "name": "statusIcon",
+                        "in": "query",
+                        "description": "Icon of the status",
+                        "schema": {
+                            "type": "string",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "message",
+                        "in": "query",
+                        "description": "Message of the status",
+                        "schema": {
+                            "type": "string",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "clearAt",
+                        "in": "query",
+                        "description": "When the message should be cleared",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The message was updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Private"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The clearAt or icon is invalid or the message is too long",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ]
+            }
+        },
+        "/ocs/v2.php/apps/user_status/api/v1/user_status/message": {
+            "delete": {
+                "tags": [
+                    "user_status"
+                ],
+                "summary": "Clear the message of the current user",
+                "operationId": "user_status-clear-message",
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "additionalProperties": true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ]
+            }
+        },
+        "/ocs/v2.php/apps/user_status/api/v1/user_status/revert/{messageId}": {
+            "delete": {
+                "tags": [
+                    "user_status"
+                ],
+                "summary": "Revert the status to the previous status",
+                "operationId": "user_status-revert-status",
+                "parameters": [
+                    {
+                        "name": "messageId",
+                        "in": "path",
+                        "description": "ID of the message to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status reverted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "oneOf": [
+                                                        {
+                                                            "$ref": "#/components/schemas/Private"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "additionalProperties": true
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ]
+            }
+        },
+        "/ocs/v2.php/apps/user_status/api/v1/predefined_statuses": {
+            "get": {
+                "tags": [
+                    "predefined_status"
+                ],
+                "summary": "Get all predefined messages",
+                "operationId": "predefined_status-find-all",
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Predefined"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ]
+            }
+        },
+        "/ocs/v2.php/apps/user_status/api/v1/heartbeat": {
+            "put": {
+                "tags": [
+                    "heartbeat"
+                ],
+                "summary": "Keep the current status alive",
+                "operationId": "heartbeat-heartbeat",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Only online, away",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "true"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status successfully updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/Private"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid status to update",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "additionalProperties": true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "additionalProperties": true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "User has no status to keep alive",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                        "ocs": {
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "additionalProperties": true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Capabilities": {
+                "required": [
+                    "user_status"
+                ],
+                "type": "object",
+                "properties": {
+                    "user_status": {
+                        "required": [
+                            "enabled",
+                            "restore",
+                            "supports_emoji"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean"
+                            },
+                            "restore": {
+                                "type": "boolean"
+                            },
+                            "supports_emoji": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            },
+            "ClearAt": {
+                "required": [
+                    "type",
+                    "time"
+                ],
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "enum": [
+                            "period",
+                            "end-of"
+                        ],
+                        "type": "string"
+                    },
+                    "time": {
+                        "oneOf": [
+                            {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            {
+                                "$ref": "#/components/schemas/ClearAtTimeType"
+                            }
+                        ]
+                    }
+                }
+            },
+            "ClearAtTimeType": {
+                "enum": [
+                    "day",
+                    "week"
+                ],
+                "type": "string"
+            },
+            "OCSMeta": {
+                "type": "object",
+                "required": [
+                    "status",
+                    "statuscode"
+                ],
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "statuscode": {
+                        "type": "integer"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "totalitems": {
+                        "type": "string"
+                    },
+                    "itemsperpage": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Predefined": {
+                "required": [
+                    "id",
+                    "icon",
+                    "message",
+                    "clearAt",
+                    "visible"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "clearAt": {
+                        "nullable": true,
+                        "$ref": "#/components/schemas/ClearAt"
+                    },
+                    "visible": {
+                        "type": "boolean",
+                        "nullable": true
+                    }
+                }
+            },
+            "Private": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Public"
+                    },
+                    {
+                        "required": [
+                            "messageId",
+                            "messageIsPredefined",
+                            "statusIsUserDefined"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "messageId": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "messageIsPredefined": {
+                                "type": "boolean"
+                            },
+                            "statusIsUserDefined": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                ]
+            },
+            "Public": {
+                "required": [
+                    "userId",
+                    "message",
+                    "icon",
+                    "clearAt",
+                    "status"
+                ],
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "icon": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "clearAt": {
+                        "type": "integer",
+                        "format": "int64",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "basic_auth": {
+                "type": "http",
+                "scheme": "basic"
+            },
+            "bearer_auth": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": []
+}
