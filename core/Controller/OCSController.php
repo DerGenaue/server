@@ -8,6 +8,7 @@
  * @author Julius Härtl <jus@bitgrid.net>
  * @author Lukas Reschke <lukas@statuscode.ch>
  * @author Roeland Jago Douma <roeland@famdouma.nl>
+ * @author Kate Döen <kate.doeen@nextcloud.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -29,6 +30,7 @@ namespace OC\Core\Controller;
 
 use OC\CapabilitiesManager;
 use OC\Security\IdentityProof\Manager;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\IRequest;
 use OCP\IUserManager;
@@ -55,6 +57,7 @@ class OCSController extends \OCP\AppFramework\OCSController {
 
 	/**
 	 * @PublicPage
+	 * @IgnoreAPI
 	 */
 	public function getConfig(): DataResponse {
 		$data = [
@@ -70,6 +73,10 @@ class OCSController extends \OCP\AppFramework\OCSController {
 
 	/**
 	 * @PublicPage
+	 *
+	 * Get the capabilities
+	 *
+	 * @return DataResponse<array{version: array{major: int, minor: int, micro: int, string: string, edition: string, extendedSupport: bool}, capabilities: array<string, mixed>}, Http::STATUS_OK>
 	 */
 	public function getCapabilities(): DataResponse {
 		$result = [];
@@ -97,6 +104,7 @@ class OCSController extends \OCP\AppFramework\OCSController {
 	/**
 	 * @PublicPage
 	 * @BruteForceProtection(action=login)
+	 * @IgnoreAPI
 	 */
 	public function personCheck(string $login = '', string $password = ''): DataResponse {
 		if ($login !== '' && $password !== '') {
@@ -117,6 +125,7 @@ class OCSController extends \OCP\AppFramework\OCSController {
 
 	/**
 	 * @PublicPage
+	 * @IgnoreAPI
 	 */
 	public function getIdentityProof(string $cloudId): DataResponse {
 		$userObject = $this->userManager->get($cloudId);

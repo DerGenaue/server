@@ -6,6 +6,7 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2019, Roeland Jago Douma <roeland@famdouma.nl>
  *
  * @author Roeland Jago Douma <roeland@famdouma.nl>
+ * @author Kate Döen <kate.doeen@nextcloud.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -51,9 +52,14 @@ class WipeController extends Controller {
 	 *
 	 * @AnonRateThrottle(limit=10, period=300)
 	 *
-	 * @param string $token
+	 * Check if the device should be wiped
 	 *
-	 * @return JSONResponse
+	 * @param string $token App password
+	 *
+	 * @return JSONResponse<array{wipe: bool}, Http::STATUS_OK>|JSONResponse<\stdClass::class, Http::STATUS_NOT_FOUND>
+	 *
+	 * 200: Device should be wiped
+	 * 404: Device should not be wiped
 	 */
 	public function checkWipe(string $token): JSONResponse {
 		try {
@@ -63,9 +69,9 @@ class WipeController extends Controller {
 				]);
 			}
 
-			return new JSONResponse([], Http::STATUS_NOT_FOUND);
+			return new JSONResponse(\stdClass::class, Http::STATUS_NOT_FOUND);
 		} catch (InvalidTokenException $e) {
-			return new JSONResponse([], Http::STATUS_NOT_FOUND);
+			return new JSONResponse(\stdClass::class, Http::STATUS_NOT_FOUND);
 		}
 	}
 
@@ -77,19 +83,24 @@ class WipeController extends Controller {
 	 *
 	 * @AnonRateThrottle(limit=10, period=300)
 	 *
-	 * @param string $token
+	 * Finish the wipe
 	 *
-	 * @return JSONResponse
+	 * @param string $token App password
+	 *
+	 * @return JSONResponse<\stdClass::class, Http::STATUS_OK|Http::STATUS_NOT_FOUND>
+	 *
+	 * 200: Wipe finished successfully
+	 * 404: Device should not be wiped
 	 */
 	public function wipeDone(string $token): JSONResponse {
 		try {
 			if ($this->remoteWipe->finish($token)) {
-				return new JSONResponse([]);
+				return new JSONResponse(\stdClass::class);
 			}
 
-			return new JSONResponse([], Http::STATUS_NOT_FOUND);
+			return new JSONResponse(\stdClass::class, Http::STATUS_NOT_FOUND);
 		} catch (InvalidTokenException $e) {
-			return new JSONResponse([], Http::STATUS_NOT_FOUND);
+			return new JSONResponse(\stdClass::class, Http::STATUS_NOT_FOUND);
 		}
 	}
 }

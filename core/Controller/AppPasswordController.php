@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @author Christoph Wurst <christoph@winzerhof-wurst.at>
  * @author Daniel Kesselberg <mail@danielkesselberg.de>
  * @author Roeland Jago Douma <roeland@famdouma.nl>
+ * @author Kate Döen <kate.doeen@nextcloud.com>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -31,6 +32,7 @@ use OC\Authentication\Events\AppPasswordCreatedEvent;
 use OC\Authentication\Exceptions\InvalidTokenException;
 use OC\Authentication\Token\IProvider;
 use OC\Authentication\Token\IToken;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\Authentication\Exceptions\CredentialsUnavailableException;
@@ -67,7 +69,12 @@ class AppPasswordController extends \OCP\AppFramework\OCSController {
 	/**
 	 * @NoAdminRequired
 	 *
-	 * @throws OCSForbiddenException
+	 * Create app password
+	 *
+	 * @return DataResponse<array{apppassword: string}, Http::STATUS_OK>
+	 * @throws OCSForbiddenException Not allowed to create app password
+	 *
+	 * 200: App password returned
 	 */
 	public function getAppPassword(): DataResponse {
 		// We do not allow the creation of new tokens if this is an app password
@@ -112,6 +119,13 @@ class AppPasswordController extends \OCP\AppFramework\OCSController {
 
 	/**
 	 * @NoAdminRequired
+	 *
+	 * Delete app password
+	 *
+	 * @return DataResponse<\stdClass::class, Http::STATUS_OK>
+	 * @throws OCSForbiddenException Not allowed to delete app password
+	 *
+	 * 200: App password deleted successfully
 	 */
 	public function deleteAppPassword(): DataResponse {
 		if (!$this->session->exists('app_password')) {
@@ -127,11 +141,18 @@ class AppPasswordController extends \OCP\AppFramework\OCSController {
 		}
 
 		$this->tokenProvider->invalidateTokenById($token->getUID(), $token->getId());
-		return new DataResponse();
+		return new DataResponse(\stdClass::class);
 	}
 
 	/**
 	 * @NoAdminRequired
+	 *
+	 * Rotate app password
+	 *
+	 * @return DataResponse<array{apppassword: string}, Http::STATUS_OK>
+	 * @throws OCSForbiddenException Not allowed to rotate app password
+	 *
+	 * 200: App password returned
 	 */
 	public function rotateAppPassword(): DataResponse {
 		if (!$this->session->exists('app_password')) {
