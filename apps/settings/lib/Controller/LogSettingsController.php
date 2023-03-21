@@ -8,6 +8,7 @@
  * @author Lukas Reschke <lukas@statuscode.ch>
  * @author Roeland Jago Douma <roeland@famdouma.nl>
  * @author Thomas Müller <thomas.mueller@tmit.eu>
+ * @author Kate Döen <kate.doeen@nextcloud.com>
  *
  * @license AGPL-3.0
  *
@@ -28,6 +29,7 @@ namespace OCA\Settings\Controller;
 
 use OC\Log;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\StreamResponse;
 use OCP\IRequest;
 
@@ -46,7 +48,7 @@ class LogSettingsController extends Controller {
 	 *
 	 * @NoCSRFRequired
 	 *
-	 * @return StreamResponse
+	 * @return StreamResponse<Http::STATUS_OK>
 	 */
 	public function download() {
 		if (!$this->log instanceof Log) {
