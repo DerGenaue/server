@@ -35,7 +35,9 @@ try {
 
 	OC::handleRequest();
 } catch (\OC\ServiceUnavailableException $ex) {
-	\OC::$server->getLogger()->logException($ex, ['app' => 'index']);
+	\OC::$server->getPsrLogger()->error($ex->getMessage(), [
+		'exception' => $ex,
+	]);
 
 	//show the user a detailed error page
 	OC_Template::printExceptionErrorPage($ex, 503);
@@ -44,8 +46,12 @@ try {
 		OC_Template::printErrorPage($ex->getMessage(), $ex->getHint(), 503);
 	} catch (Exception $ex2) {
 		try {
-			\OC::$server->getLogger()->logException($ex, ['app' => 'index']);
-			\OC::$server->getLogger()->logException($ex2, ['app' => 'index']);
+			\OC::$server->getPsrLogger()->error($ex->getMessage(), [
+				'exception' => $ex,
+			]);
+			\OC::$server->getPsrLogger()->error($ex2->getMessage(), [
+				'exception' => $ex2,
+			]);
 		} catch (Throwable $e) {
 			// no way to log it properly - but to avoid a white page of death we try harder and ignore this one here
 		}
@@ -68,13 +74,17 @@ try {
 	}
 	OC_Template::printErrorPage($ex->getMessage(), $ex->getMessage(), 401);
 } catch (Exception $ex) {
-	\OC::$server->getLogger()->logException($ex, ['app' => 'index']);
+	\OC::$server->getPsrLogger()->error($ex->getMessage(), [
+		'exception' => $ex,
+	]);
 
 	//show the user a detailed error page
 	OC_Template::printExceptionErrorPage($ex, 500);
 } catch (Error $ex) {
 	try {
-		\OC::$server->getLogger()->logException($ex, ['app' => 'index']);
+		\OC::$server->getPsrLogger()->error($ex->getMessage(), [
+			'exception' => $ex,
+		]);
 	} catch (Error $e) {
 		http_response_code(500);
 		header('Content-Type: text/plain; charset=utf-8');
@@ -82,6 +92,7 @@ try {
 		print("The server encountered an internal error and was unable to complete your request.\n");
 		print("Please contact the server administrator if this error reappears multiple times, please include the technical details below in your report.\n");
 		print("More details can be found in the webserver log.\n");
+
 
 		throw $ex;
 	}

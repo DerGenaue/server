@@ -1834,6 +1834,13 @@ class Server extends ServerContainer implements IServerContainer {
 		return $this->get(ILogger::class);
 	}
 
+	public function getPsrLogger(): LoggerInterface {
+		$logFactory = $this->get(LogFactory::class);
+		$logFile = \OC::$server->get(SystemConfig::class)->getValue('logfile', false);
+		$logFile = $logFile ? $logFile : \OC::$SERVERROOT . '/data/nextcloud.log';
+		return $logFactory->getCustomPsrLogger($logFile);
+	}
+
 	/**
 	 * @return ILogFactory
 	 * @throws \OCP\AppFramework\QueryException
