@@ -30,6 +30,7 @@
  */
 require_once __DIR__ . '/lib/versioncheck.php';
 
+
 try {
 	require_once __DIR__ . '/lib/base.php';
 
@@ -38,6 +39,7 @@ try {
 	\OC::$server->getPsrLogger()->error($ex->getMessage(), [
 		'exception' => $ex,
 	]);
+	\OC::getLogFile()->write('core', $ex->getMessage(), 3);
 
 	//show the user a detailed error page
 	OC_Template::printExceptionErrorPage($ex, 503);
@@ -60,6 +62,7 @@ try {
 		OC_Template::printExceptionErrorPage($ex, 500);
 	}
 } catch (\OC\User\LoginException $ex) {
+	\OC::getLogFile()->write('core', $ex->getMessage(), 3);
 	$request = \OC::$server->getRequest();
 	/**
 	 * Routes with the @CORS annotation and other API endpoints should
@@ -74,6 +77,7 @@ try {
 	}
 	OC_Template::printErrorPage($ex->getMessage(), $ex->getMessage(), 401);
 } catch (Exception $ex) {
+	\OC::getLogFile()->write('core', $ex->getMessage(), 3);
 	\OC::$server->getPsrLogger()->error($ex->getMessage(), [
 		'exception' => $ex,
 	]);
@@ -81,6 +85,7 @@ try {
 	//show the user a detailed error page
 	OC_Template::printExceptionErrorPage($ex, 500);
 } catch (Error $ex) {
+	\OC::getLogFile()->write('core', $ex->getMessage(), 3);
 	try {
 		\OC::$server->getPsrLogger()->error($ex->getMessage(), [
 			'exception' => $ex,

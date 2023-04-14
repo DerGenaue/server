@@ -1165,6 +1165,22 @@ class OC {
 			}
 		}
 	}
+
+	/*
+	* Sometimes the database service might not be available, see issue #37424
+	* hence getting configuration via the database would not be possible.
+	* This method would return the logfile path read directly from the config
+	* file. This is an anti-pattern and only done because there's no other way
+	* to gracefully handle database connection errors. We also don't want to expose the full
+	* self::$config object as it might contain important secrets.
+	*/
+	public static function getLogFilePath(): string {
+		return self::$config->getValue('logfile', self::$SERVERROOT . '/data' . '/nextcloud.log');
+	}
+
+	public static function getLogFile(): \OC\Log\File {
+		return new \OC\Log\File(self::getLogFilePath(), '', \OC::$server->get(\OC\SystemConfig::class));
+	}
 }
 
 OC::init();

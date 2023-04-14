@@ -80,7 +80,15 @@ class File extends LogDetails implements IWriter, IFileBased {
 	 * @param int $level
 	 */
 	public function write(string $app, $message, int $level) {
-		$entry = $this->logDetailsAsJSON($app, $message, $level);
+		try {
+			$entry = $this->logDetailsAsJSON($app, $message, $level);
+		} catch (\Doctrine\DBAL\Exception $e) {
+			// The existing logger system deeply depends on the database to write any logs
+			// This means if there is no connection to the database nothing can be logged
+			// Including the database connection error
+			// We catch the database connection here and avoid the part (\OC\Log\LogDetails) that relies on the the database.
+			$entry = json_encode(['app' => $app, 'message' => $message, 'level' => 1]);
+		}
 		$handle = @fopen($this->logFile, 'a');
 		if ($this->logFileMode > 0 && is_file($this->logFile) && (fileperms($this->logFile) & 0777) != $this->logFileMode) {
 			@chmod($this->logFile, $this->logFileMode);
