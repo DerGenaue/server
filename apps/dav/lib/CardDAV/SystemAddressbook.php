@@ -27,17 +27,28 @@ declare(strict_types=1);
  */
 namespace OCA\DAV\CardDAV;
 
+use OCA\Federation\TrustedServers;
+use OCP\Accounts\IAccountManager;
 use OCP\IConfig;
 use OCP\IL10N;
+use OCP\IRequest;
 use Sabre\CardDAV\Backend\BackendInterface;
+use Sabre\CardDAV\Card;
+use Sabre\DAV\Exception\NotFound;
+use Sabre\VObject\Component\VCard;
+use Sabre\VObject\Reader;
 
 class SystemAddressbook extends AddressBook {
 	/** @var IConfig */
 	private $config;
+	private ?TrustedServers $trustedServers;
+	private ?IRequest $request;
 
-	public function __construct(BackendInterface $carddavBackend, array $addressBookInfo, IL10N $l10n, IConfig $config) {
+	public function __construct(BackendInterface $carddavBackend, array $addressBookInfo, IL10N $l10n, IConfig $config, ?IRequest $request = null, ?TrustedServers $trustedServers = null) {
 		parent::__construct($carddavBackend, $addressBookInfo, $l10n);
 		$this->config = $config;
+		$this->request = $request;
+		$this->trustedServers = $trustedServers;
 	}
 
 	public function getChildren() {
@@ -49,5 +60,60 @@ class SystemAddressbook extends AddressBook {
 		}
 
 		return parent::getChildren();
+	}
+
+	/**
+	 * @param $name
+	 * @return Card
+	 * @throws NotFound
+	 */
+	public function getChild($name): Card {
+		if ($this->trustedServers === null || $this->request === null) {
+			return parent::getChild($name);
+		}
+
+		if ($this->request->server['PHP_AUTH_USER'] !== 'system') {
+			return parent::getChild($name);
+		}
+
+		$sharedSecret = $this->request->server['PHP_AUTH_PW'];
+		if ($sharedSecret === null) {
+			return parent::getChild($name);
+		}
+
+		$servers = $this->trustedServers->getServers();
+		$trusted = array_filter($servers, function ($trustedServer) use ($sharedSecret) {
+			return $trustedServer['shared_secret'] === $sharedSecret;
+		});
+		// Authentication is fine, but it's not for a federated share
+		if (empty($trusted)) {
+			return parent::getChild($name);
+		}
+
+		$obj = $this->carddavBackend->getCard($this->addressBookInfo['id'], $name);
+		if (!$obj) {
+			throw new NotFound('Card not found');
+		}
+		$obj['acl'] = $this->getChildACL();
+		$cardData = $obj['carddata'];
+		/** @var VCard $vCard */
+		$vCard = Reader::read($cardData);
+		foreach ($vCard->children() as $child) {
+			$scope = $child->offsetGet('X-NC-SCOPE');
+			if ($scope !== null && $scope->getValue() === IAccountManager::SCOPE_LOCAL) {
+				$vCard->remove($child);
+			}
+		}
+		$messages = $vCard->validate();
+		if (!empty($messages)) {
+			// If the validation doesn't work the card is indeed "not found"
+			// even if it might exist in the local backend.
+			// This can happen when a user sets the required properties
+			// FN, N to a local scope only.
+			// @see https://github.com/nextcloud/server/issues/38042
+			throw new NotFound('Card not found');
+		}
+		$obj['carddata'] = $vCard->serialize();
+		return new Card($this->carddavBackend, $this->addressBookInfo, $obj);
 	}
 }
