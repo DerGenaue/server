@@ -142,6 +142,19 @@
 				<div v-if="showConfig.showStoragePath" class="storageLocation" />
 				<div v-if="showConfig.showUserBackend" class="userBackend" />
 				<div v-if="showConfig.showLastLogin" class="lastLogin" />
+				<div :class="{'icon-loading-small': loading.manager}" class="modal__item managers">
+			<NcMultiselect :close-on-select="true"
+				ref="manager"
+				:userSelect="true"
+				:options="users"
+				:placeholder="t('settings', 'Select user manager')"
+				v-model="newUser.manager"
+				class="multiselect-vue"
+				label="displayname"
+				track-by="id">
+				<span slot="noResult">{{ t('settings', 'No results') }}</span>
+			</NcMultiselect>
+		</div>
 				<div class="user-actions">
 					<NcButton id="newsubmit"
 						type="primary"
@@ -201,6 +214,9 @@
 				class="headerLastLogin lastLogin">
 				{{ t('settings', 'Last login') }}
 			</div>
+			<div id="headerManager" class="manager">
+				{{ t('settings', 'Manager') }}
+			</div>
 
 			<div class="userActions" />
 		</div>
@@ -215,6 +231,7 @@
 			:show-config="showConfig"
 			:sub-admins-groups="subAdminsGroups"
 			:user="user"
+			:users="users"
 			:is-dark-theme="isDarkTheme" />
 		<InfiniteLoading ref="infiniteLoading" @infinite="infiniteHandler">
 			<div slot="spinner">
@@ -257,6 +274,7 @@ const newUser = {
 	password: '',
 	mailAddress: '',
 	groups: [],
+	manager:'',
 	subAdminsGroups: [],
 	quota: defaultQuota,
 	language: {
@@ -521,6 +539,7 @@ export default {
 				subadmin: this.newUser.subAdminsGroups.map(group => group.id),
 				quota: this.newUser.quota.id,
 				language: this.newUser.language.code,
+				manager:this.newUser.manager.id,
 			})
 				.then(() => {
 					this.resetForm()

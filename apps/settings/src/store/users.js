@@ -550,9 +550,9 @@ const actions = {
 	 * @param {string} options.language User language
 	 * @return {Promise}
 	 */
-	addUser({ commit, dispatch }, { userid, password, displayName, email, groups, subadmin, quota, language }) {
+	addUser({ commit, dispatch }, { userid, password, displayName, email, groups, subadmin, quota, language ,manager}) {
 		return api.requireAdmin().then((response) => {
-			return api.post(generateOcsUrl('cloud/users'), { userid, password, displayName, email, groups, subadmin, quota, language })
+			return api.post(generateOcsUrl('cloud/users'), { userid, password, displayName, email, groups, subadmin, quota, language ,manager})
 				.then((response) => dispatch('addUserData', userid || response.data.ocs.data.id))
 				.catch((error) => { throw error })
 		}).catch((error) => {
@@ -605,8 +605,8 @@ const actions = {
 	 * @return {Promise}
 	 */
 	setUserData(context, { userid, key, value }) {
-		const allowedEmpty = ['email', 'displayname']
-		if (['email', 'language', 'quota', 'displayname', 'password'].indexOf(key) !== -1) {
+		const allowedEmpty = ['email', 'displayname','manager']
+		if (['email', 'language', 'quota', 'displayname', 'password','manager'].indexOf(key) !== -1) {
 			// We allow empty email or displayname
 			if (typeof value === 'string'
 				&& (

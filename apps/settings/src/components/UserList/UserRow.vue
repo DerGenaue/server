@@ -203,6 +203,21 @@
 				track-by="code"
 				@input="setUserLanguage" />
 		</div>
+		<div :class="{'icon-loading-small': loading.manager}" class="managers">
+			<NcMultiselect :close-on-select="true"
+				ref="manager"
+				:userSelect="true"
+				:options="possibleManagers"
+				:placeholder="t('settings', 'Select user manager')"
+				:value="currentManager"
+				class="multiselect-vue"
+				label="displayname"
+				track-by="id"
+				@remove="updateUserManager"
+				@select="updateUserManager">
+				<span slot="noResult">{{ t('settings', 'No results') }}</span>
+			</NcMultiselect>
+		</div>
 
 		<!-- don't show this on edit mode -->
 		<div v-if="showConfig.showStoragePath || showConfig.showUserBackend"
@@ -261,6 +276,10 @@ export default {
 	},
 	mixins: [UserRowMixin],
 	props: {
+		users:{
+			type: Array,
+			required: true,
+		},
 		user: {
 			type: Object,
 			required: true,
@@ -316,10 +335,17 @@ export default {
 				disable: false,
 				languages: false,
 				wipe: false,
+				manager: false,
 			},
 		}
 	},
 	computed: {
+		possibleManagers(){
+			return this.users.filter((user) => user.id !== this.user.id)
+		},
+		currentManager() {
+			return this.possibleManagers.find((manager) => manager.id === this.user.manager)
+		},
 		/* USER POPOVERMENU ACTIONS */
 		userActions() {
 			const actions = [
@@ -383,6 +409,17 @@ export default {
 				},
 				true
 			)
+		},
+		async updateUserManager(manager){
+			this.loading.manager = true
+			this.$store.dispatch('setUserData', {
+				userid: this.user.id,
+				key: 'manager',
+				value: manager.id,
+			}).then(() => {
+				this.loading.manager = false
+				this.$refs.manager.value = manager
+			})
 		},
 
 		deleteUser() {
