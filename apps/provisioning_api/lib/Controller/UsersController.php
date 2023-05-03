@@ -810,9 +810,11 @@ class UsersController extends AUserData {
 
 			$permittedFields[] = IAccountManager::PROPERTY_AVATAR . self::SCOPE_SUFFIX;
 
-			// If admin they can edit their own quota
+			// If admin they can edit their own quota and manager
 			if ($this->groupManager->isAdmin($currentLoggedInUser->getUID())) {
 				$permittedFields[] = self::USER_FIELD_QUOTA;
+				$permittedFields[] = self::USER_FIELD_MANAGER;
+
 			}
 		} else {
 			// Check if admin / subadmin
