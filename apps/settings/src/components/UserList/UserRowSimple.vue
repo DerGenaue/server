@@ -56,7 +56,7 @@
 			{{ userLastLogin }}
 		</div>
 		<div class="managers">
-			{{ user.manager }} 
+			{{ user.manager }}
 		</div>
 		<div class="userActions">
 			<div v-if="canEdit && !loading.all" class="toggleUserActions">

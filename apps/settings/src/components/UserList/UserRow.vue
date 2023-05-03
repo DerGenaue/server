@@ -204,9 +204,9 @@
 				@input="setUserLanguage" />
 		</div>
 		<div :class="{'icon-loading-small': loading.manager}" class="managers">
-			<NcMultiselect :close-on-select="true"
-				ref="manager"
-				:userSelect="true"
+			<NcMultiselect ref="manager"
+				:close-on-select="true"
+				:user-select="true"
 				:options="possibleManagers"
 				:placeholder="t('settings', 'Select user manager')"
 				:value="currentManager"
@@ -276,7 +276,7 @@ export default {
 	},
 	mixins: [UserRowMixin],
 	props: {
-		users:{
+		users: {
 			type: Array,
 			required: true,
 		},
@@ -340,7 +340,7 @@ export default {
 		}
 	},
 	computed: {
-		possibleManagers(){
+		possibleManagers() {
 			return this.users.filter((user) => user.id !== this.user.id)
 		},
 		currentManager() {
@@ -410,7 +410,7 @@ export default {
 				true
 			)
 		},
-		async updateUserManager(manager){
+		updateUserManager(manager) {
 			this.loading.manager = true
 			this.$store.dispatch('setUserData', {
 				userid: this.user.id,

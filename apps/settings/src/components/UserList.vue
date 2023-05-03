@@ -143,18 +143,18 @@
 				<div v-if="showConfig.showUserBackend" class="userBackend" />
 				<div v-if="showConfig.showLastLogin" class="lastLogin" />
 				<div :class="{'icon-loading-small': loading.manager}" class="modal__item managers">
-			<NcMultiselect :close-on-select="true"
-				ref="manager"
-				:userSelect="true"
-				:options="users"
-				:placeholder="t('settings', 'Select user manager')"
-				v-model="newUser.manager"
-				class="multiselect-vue"
-				label="displayname"
-				track-by="id">
-				<span slot="noResult">{{ t('settings', 'No results') }}</span>
-			</NcMultiselect>
-		</div>
+					<NcMultiselect ref="manager"
+						v-model="newUser.manager"
+						:close-on-select="true"
+						:user-select="true"
+						:options="users"
+						:placeholder="t('settings', 'Select user manager')"
+						class="multiselect-vue"
+						label="displayname"
+						track-by="id">
+						<span slot="noResult">{{ t('settings', 'No results') }}</span>
+					</NcMultiselect>
+				</div>
 				<div class="user-actions">
 					<NcButton id="newsubmit"
 						type="primary"
@@ -274,7 +274,7 @@ const newUser = {
 	password: '',
 	mailAddress: '',
 	groups: [],
-	manager:'',
+	manager: '',
 	subAdminsGroups: [],
 	quota: defaultQuota,
 	language: {
@@ -539,7 +539,7 @@ export default {
 				subadmin: this.newUser.subAdminsGroups.map(group => group.id),
 				quota: this.newUser.quota.id,
 				language: this.newUser.language.code,
-				manager:this.newUser.manager.id,
+				manager: this.newUser.manager.id,
 			})
 				.then(() => {
 					this.resetForm()
