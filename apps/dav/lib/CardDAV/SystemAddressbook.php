@@ -71,8 +71,11 @@ class SystemAddressbook extends AddressBook {
 				return [];
 			}
 		}
-
 		if ($shareEnumerationGroup) {
+			if ($this->groupManager === null) {
+				// Group manager is not available, so we can't determine which data is safe
+				return [];
+			}
 			$groups = $this->groupManager->getUserGroups($this->user);
 			$names = [];
 			foreach ($groups as $group) {
