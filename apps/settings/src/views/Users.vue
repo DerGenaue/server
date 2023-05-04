@@ -81,11 +81,12 @@
 			<template #footer>
 				<NcAppNavigationSettings>
 					<div>
-						<p>{{ t('settings', 'Default quota:') }}</p>
+						<label for="default-quota-multiselect">{{ t('settings', 'Default quota:') }}</label>
 						<NcMultiselect :value="defaultQuota"
 							:options="quotaOptions"
 							tag-placeholder="create"
 							:placeholder="t('settings', 'Select default quota')"
+							id="default-quota-multiselect"
 							label="label"
 							track-by="id"
 							:allow-empty="false"
