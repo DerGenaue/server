@@ -43,8 +43,8 @@ class Get extends Command {
 		$this
 			->setName('files:get')
 			->setDescription('Get the contents of a file')
-			->addArgument('file', InputArgument::REQUIRED, "File id or path")
-			->addArgument('output', InputArgument::OPTIONAL, "Target file to output to, defaults to STDOUT");
+			->addArgument('file', InputArgument::REQUIRED, "Source file id or Nextcloud path")
+			->addArgument('output', InputArgument::OPTIONAL, "Target local file to output to, defaults to STDOUT");
 	}
 
 	public function execute(InputInterface $input, OutputInterface $output): int {
@@ -68,7 +68,7 @@ class Get extends Command {
 				return 1;
 			}
 			$source = $node->fopen('r');
-			$target = (!$outputName || $outputName === '-') ? STDOUT : fopen($outputName, 'w');
+			$target = ($outputName === null || $outputName === '-') ? STDOUT : fopen($outputName, 'w');
 			stream_copy_to_stream($source, $target);
 			return 0;
 		} else {
