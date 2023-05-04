@@ -63,20 +63,21 @@ class SystemAddressbook extends AddressBook {
 	}
 
 	/**
-	 * @param $name
+	 * @param string $name
 	 * @return Card
 	 * @throws NotFound
-	 * @psalm-suppress NoInterfaceProperties
 	 */
 	public function getChild($name): Card {
 		if ($this->trustedServers === null || $this->request === null) {
 			return parent::getChild($name);
 		}
 
+		/* @psalm-suppress NoInterfaceProperties */
 		if ($this->request->server['PHP_AUTH_USER'] !== 'system') {
 			return parent::getChild($name);
 		}
 
+		/* @psalm-suppress NoInterfaceProperties */
 		$sharedSecret = $this->request->server['PHP_AUTH_PW'];
 		if ($sharedSecret === null) {
 			return parent::getChild($name);
