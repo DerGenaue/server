@@ -547,12 +547,14 @@ class User implements IUser {
 	}
 
 	public function setManagerUids(array $uids): void {
+		$oldUids = $this->getManagerUids();
 		$this->config->setUserValue(
 			$this->uid,
 			'settings',
 			self::CONFIG_KEY_MANAGERS,
 			json_encode($uids, JSON_THROW_ON_ERROR)
 		);
+		$this->triggerChange('managers', $uids, $oldUids);
 	}
 
 	/**
