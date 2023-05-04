@@ -36,21 +36,19 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 
 class Version1027Date20230504122946 extends SimpleMigrationStep {
+	private SyncService $syncService;
+	private LoggerInterface $logger;
+
+	public function __construct(SyncService $syncService, LoggerInterface $logger) {
+		$this->syncService = $syncService;
+		$this->logger = $logger;
+	}
 	/**
 	 * @param IOutput $output
 	 * @param Closure(): ISchemaWrapper $schemaClosure
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		/** @var SyncService $syncService */
-		try {
-			$syncService = \OC::$server->get(SyncService::class);
-		} catch (NotFoundExceptionInterface | ContainerExceptionInterface $e) {
-			/** @var LoggerInterface $logger */
-			$logger = \OC::$server->get(LoggerInterface::class);
-			$logger->error('Could not sync system addressbook. Please run the command occ dav:sync-system-addressbook manually.');
-			return;
-		}
-		$syncService->syncInstance();
+		$this->syncService->syncInstance();
 	}
 }

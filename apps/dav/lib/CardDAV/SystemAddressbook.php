@@ -72,12 +72,12 @@ class SystemAddressbook extends AddressBook {
 			return parent::getChild($name);
 		}
 
-		/* @psalm-suppress NoInterfaceProperties */
+		/** @psalm-suppress NoInterfaceProperties */
 		if ($this->request->server['PHP_AUTH_USER'] !== 'system') {
 			return parent::getChild($name);
 		}
 
-		/* @psalm-suppress NoInterfaceProperties */
+		/** @psalm-suppress NoInterfaceProperties */
 		$sharedSecret = $this->request->server['PHP_AUTH_PW'];
 		if ($sharedSecret === null) {
 			return parent::getChild($name);
