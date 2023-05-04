@@ -27,13 +27,16 @@ declare(strict_types=1);
  */
 namespace OCA\DAV\CardDAV;
 
+use OCA\DAV\Exception\UnsupportedLimitOnInitialSyncException;
 use OCA\Federation\TrustedServers;
 use OCP\Accounts\IAccountManager;
 use OCP\IConfig;
 use OCP\IL10N;
 use OCP\IRequest;
+use Sabre\CardDAV\Backend\SyncSupport;
 use Sabre\CardDAV\Backend\BackendInterface;
 use Sabre\CardDAV\Card;
+use Sabre\DAV\Exception\Forbidden;
 use Sabre\DAV\Exception\NotFound;
 use Sabre\VObject\Component\VCard;
 use Sabre\VObject\Reader;
@@ -63,9 +66,68 @@ class SystemAddressbook extends AddressBook {
 	}
 
 	/**
+	 * @param array $names
+	 * @return Card[]
+	 */
+	public function getMultipleChildren($names): array {
+		if ($this->trustedServers === null || $this->request === null) {
+			return parent::getMultipleChildren($names);
+		}
+
+		/** @psalm-suppress NoInterfaceProperties */
+		if ($this->request->server['PHP_AUTH_USER'] !== 'system') {
+			return parent::getChild($names);
+		}
+
+		/** @psalm-suppress NoInterfaceProperties */
+		$sharedSecret = $this->request->server['PHP_AUTH_PW'];
+		if ($sharedSecret === null) {
+			return parent::getMultipleChildren($names);
+		}
+
+		$servers = $this->trustedServers->getServers();
+		$trusted = array_filter($servers, function ($trustedServer) use ($sharedSecret) {
+			return $trustedServer['shared_secret'] === $sharedSecret;
+		});
+		// Authentication is fine, but it's not for a federated share
+		if (empty($trusted)) {
+			return parent::getMultipleChildren($names);
+		}
+
+		$objs = $this->carddavBackend->getMultipleCards($this->addressBookInfo['id'], $names);
+		$children = [];
+		foreach ($objs as $obj) {
+			$obj['acl'] = $this->getChildACL();
+			$cardData = $obj['carddata'];
+			/** @var VCard $vCard */
+			$vCard = Reader::read($cardData);
+			foreach ($vCard->children() as $child) {
+				$scope = $child->offsetGet('X-NC-SCOPE');
+				if ($scope !== null && $scope->getValue() === IAccountManager::SCOPE_LOCAL) {
+					$vCard->remove($child);
+				}
+			}
+			$messages = $vCard->validate();
+			if (!empty($messages)) {
+				// If the validation doesn't work the card is indeed "not found"
+				// even if it might exist in the local backend.
+				// This can happen when a user sets the required properties
+				// FN, N to a local scope only.
+				// @see https://github.com/nextcloud/server/issues/38042
+				continue;
+			} else {
+				$obj['carddata'] = $vCard->serialize();
+			}
+			$children[] = new Card($this->carddavBackend, $this->addressBookInfo, $obj);
+		}
+		return $children;
+	}
+
+	/**
 	 * @param string $name
 	 * @return Card
 	 * @throws NotFound
+	 * @throws Forbidden
 	 */
 	public function getChild($name): Card {
 		if ($this->trustedServers === null || $this->request === null) {
@@ -113,9 +175,82 @@ class SystemAddressbook extends AddressBook {
 			// This can happen when a user sets the required properties
 			// FN, N to a local scope only.
 			// @see https://github.com/nextcloud/server/issues/38042
-			throw new NotFound('Card not found');
+			throw new Forbidden();
+		} else {
+			$obj['carddata'] = $vCard->serialize();
 		}
-		$obj['carddata'] = $vCard->serialize();
 		return new Card($this->carddavBackend, $this->addressBookInfo, $obj);
+	}
+
+	/**
+	 * @param $syncToken
+	 * @param $syncLevel
+	 * @param $limit
+	 * @return array|null
+	 * @throws UnsupportedLimitOnInitialSyncException
+	 */
+	public function getChanges($syncToken, $syncLevel, $limit = null): ?array {
+		if (!$syncToken && $limit) {
+			throw new UnsupportedLimitOnInitialSyncException();
+		}
+
+		if (!$this->carddavBackend instanceof SyncSupport) {
+			return null;
+		}
+
+		if ($this->trustedServers === null || $this->request === null) {
+			return parent::getChanges($syncToken, $syncLevel, $limit);
+		}
+
+		/** @psalm-suppress NoInterfaceProperties */
+		if ($this->request->server['PHP_AUTH_USER'] !== 'system') {
+			return parent::getChanges($syncToken, $syncLevel, $limit);
+		}
+
+		/** @psalm-suppress NoInterfaceProperties */
+		$sharedSecret = $this->request->server['PHP_AUTH_PW'];
+		if ($sharedSecret === null) {
+			return parent::getChanges($syncToken, $syncLevel, $limit);
+		}
+
+		$servers = $this->trustedServers->getServers();
+		$trusted = array_filter($servers, function ($trustedServer) use ($sharedSecret) {
+			return $trustedServer['shared_secret'] === $sharedSecret;
+		});
+		// Authentication is fine, but it's not for a federated share
+		if (empty($trusted)) {
+			return parent::getChanges($syncToken, $syncLevel, $limit);
+		}
+
+		$changed = $this->carddavBackend->getChangesForAddressBook(
+			$this->addressBookInfo['id'],
+			$syncToken,
+			$syncLevel,
+			$limit
+		);
+
+		// If it's ugly but it works, is it still ugly?
+		$added = $modified = $deleted = [];
+		foreach ($changed['added'] as $uri) {
+			try {
+				$this->getChild($uri);
+				$added[] = $uri;
+			} catch (NotFound | Forbidden $e) {
+				$deleted[] = $uri;
+			}
+		}
+		foreach ($changed['modified'] as $uri) {
+			try {
+				$this->getChild($uri);
+				$modified[] = $uri;
+			} catch (NotFound | Forbidden $e) {
+				$deleted[] = $uri;
+			}
+		}
+		$changed['added'] = $added;
+		$changed['modified'] = $modified;
+		$changed['deleted'] = $deleted;
+		// Yes
+		return $changed;
 	}
 }
