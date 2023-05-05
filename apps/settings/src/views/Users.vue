@@ -358,6 +358,8 @@ export default {
 		 * @param {string | object} quota Quota in readable format '5 GB' or Object {id: '5 GB', label: '5GB'}
 		 */
 		setDefaultQuota(quota = 'none') {
+			// Make sure correct label is set for unlimited quota
+			if (quota === 'none') quota = this.unlimitedQuota
 			this.$store.dispatch('setAppConfig', {
 				app: 'files',
 				key: 'default_quota',
