@@ -70,27 +70,7 @@ class SystemAddressbook extends AddressBook {
 	 * @return Card[]
 	 */
 	public function getMultipleChildren($paths): array {
-		if ($this->trustedServers === null || $this->request === null) {
-			return parent::getMultipleChildren($paths);
-		}
-
-		/** @psalm-suppress NoInterfaceProperties */
-		if ($this->request->server['PHP_AUTH_USER'] !== 'system') {
-			return parent::getMultipleChildren($paths);
-		}
-
-		/** @psalm-suppress NoInterfaceProperties */
-		$sharedSecret = $this->request->server['PHP_AUTH_PW'];
-		if ($sharedSecret === null) {
-			return parent::getMultipleChildren($paths);
-		}
-
-		$servers = $this->trustedServers->getServers();
-		$trusted = array_filter($servers, function ($trustedServer) use ($sharedSecret) {
-			return $trustedServer['shared_secret'] === $sharedSecret;
-		});
-		// Authentication is fine, but it's not for a federated share
-		if (empty($trusted)) {
+		if (!$this->isFederation()) {
 			return parent::getMultipleChildren($paths);
 		}
 
@@ -130,27 +110,7 @@ class SystemAddressbook extends AddressBook {
 	 * @throws Forbidden
 	 */
 	public function getChild($name): Card {
-		if ($this->trustedServers === null || $this->request === null) {
-			return parent::getChild($name);
-		}
-
-		/** @psalm-suppress NoInterfaceProperties */
-		if ($this->request->server['PHP_AUTH_USER'] !== 'system') {
-			return parent::getChild($name);
-		}
-
-		/** @psalm-suppress NoInterfaceProperties */
-		$sharedSecret = $this->request->server['PHP_AUTH_PW'];
-		if ($sharedSecret === null) {
-			return parent::getChild($name);
-		}
-
-		$servers = $this->trustedServers->getServers();
-		$trusted = array_filter($servers, function ($trustedServer) use ($sharedSecret) {
-			return $trustedServer['shared_secret'] === $sharedSecret;
-		});
-		// Authentication is fine, but it's not for a federated share
-		if (empty($trusted)) {
+		if (!$this->isFederation()) {
 			return parent::getChild($name);
 		}
 
@@ -197,27 +157,7 @@ class SystemAddressbook extends AddressBook {
 			return null;
 		}
 
-		if ($this->trustedServers === null || $this->request === null) {
-			return parent::getChanges($syncToken, $syncLevel, $limit);
-		}
-
-		/** @psalm-suppress NoInterfaceProperties */
-		if ($this->request->server['PHP_AUTH_USER'] !== 'system') {
-			return parent::getChanges($syncToken, $syncLevel, $limit);
-		}
-
-		/** @psalm-suppress NoInterfaceProperties */
-		$sharedSecret = $this->request->server['PHP_AUTH_PW'];
-		if ($sharedSecret === null) {
-			return parent::getChanges($syncToken, $syncLevel, $limit);
-		}
-
-		$servers = $this->trustedServers->getServers();
-		$trusted = array_filter($servers, function ($trustedServer) use ($sharedSecret) {
-			return $trustedServer['shared_secret'] === $sharedSecret;
-		});
-		// Authentication is fine, but it's not for a federated share
-		if (empty($trusted)) {
+		if (!$this->isFederation()) {
 			return parent::getChanges($syncToken, $syncLevel, $limit);
 		}
 
@@ -253,5 +193,33 @@ class SystemAddressbook extends AddressBook {
 		$changed['modified'] = $modified;
 		$changed['deleted'] = $deleted;
 		return $changed;
+	}
+
+	private function isFederation(): bool {
+		if ($this->trustedServers === null || $this->request === null) {
+			return false;
+		}
+
+		/** @psalm-suppress NoInterfaceProperties */
+		if ($this->request->server['PHP_AUTH_USER'] !== 'system') {
+			return false;
+		}
+
+		/** @psalm-suppress NoInterfaceProperties */
+		$sharedSecret = $this->request->server['PHP_AUTH_PW'];
+		if ($sharedSecret === null) {
+			return false;
+		}
+
+		$servers = $this->trustedServers->getServers();
+		$trusted = array_filter($servers, function ($trustedServer) use ($sharedSecret) {
+			return $trustedServer['shared_secret'] === $sharedSecret;
+		});
+		// Authentication is fine, but it's not for a federated share
+		if (empty($trusted)) {
+			return false;
+		}
+
+		return true;
 	}
 }
