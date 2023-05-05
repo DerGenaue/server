@@ -54,7 +54,7 @@ class SystemAddressbook extends AddressBook {
 		$this->trustedServers = $trustedServers;
 	}
 
-	public function getChildren() {
+	public function getChildren(): array {
 		$shareEnumeration = $this->config->getAppValue('core', 'shareapi_allow_share_dialog_user_enumeration', 'yes') === 'yes';
 		$shareEnumerationGroup = $this->config->getAppValue('core', 'shareapi_restrict_user_enumeration_to_group', 'no') === 'yes';
 		$shareEnumerationPhone = $this->config->getAppValue('core', 'shareapi_restrict_user_enumeration_to_phone', 'no') === 'yes';
@@ -66,23 +66,23 @@ class SystemAddressbook extends AddressBook {
 	}
 
 	/**
-	 * @param array $names
+	 * @param array $paths
 	 * @return Card[]
 	 */
-	public function getMultipleChildren($names): array {
+	public function getMultipleChildren($paths): array {
 		if ($this->trustedServers === null || $this->request === null) {
-			return parent::getMultipleChildren($names);
+			return parent::getMultipleChildren($paths);
 		}
 
 		/** @psalm-suppress NoInterfaceProperties */
 		if ($this->request->server['PHP_AUTH_USER'] !== 'system') {
-			return parent::getChild($names);
+			return parent::getMultipleChildren($paths);
 		}
 
 		/** @psalm-suppress NoInterfaceProperties */
 		$sharedSecret = $this->request->server['PHP_AUTH_PW'];
 		if ($sharedSecret === null) {
-			return parent::getMultipleChildren($names);
+			return parent::getMultipleChildren($paths);
 		}
 
 		$servers = $this->trustedServers->getServers();
@@ -91,10 +91,10 @@ class SystemAddressbook extends AddressBook {
 		});
 		// Authentication is fine, but it's not for a federated share
 		if (empty($trusted)) {
-			return parent::getMultipleChildren($names);
+			return parent::getMultipleChildren($paths);
 		}
 
-		$objs = $this->carddavBackend->getMultipleCards($this->addressBookInfo['id'], $names);
+		$objs = $this->carddavBackend->getMultipleCards($this->addressBookInfo['id'], $paths);
 		$children = [];
 		foreach ($objs as $obj) {
 			$obj['acl'] = $this->getChildACL();
@@ -170,7 +170,7 @@ class SystemAddressbook extends AddressBook {
 		}
 		$messages = $vCard->validate();
 		if (!empty($messages)) {
-			// If the validation doesn't work the card is indeed "not found"
+			// If the validation doesn't work the card is indeed "forbidden"
 			// even if it might exist in the local backend.
 			// This can happen when a user sets the required properties
 			// FN, N to a local scope only.
@@ -186,7 +186,6 @@ class SystemAddressbook extends AddressBook {
 	 * @param $syncToken
 	 * @param $syncLevel
 	 * @param $limit
-	 * @return array|null
 	 * @throws UnsupportedLimitOnInitialSyncException
 	 */
 	public function getChanges($syncToken, $syncLevel, $limit = null): ?array {
@@ -229,7 +228,10 @@ class SystemAddressbook extends AddressBook {
 			$limit
 		);
 
-		// If it's ugly but it works, is it still ugly?
+		if (empty($changed)) {
+			return $changed;
+		}
+
 		$added = $modified = $deleted = [];
 		foreach ($changed['added'] as $uri) {
 			try {
@@ -250,7 +252,6 @@ class SystemAddressbook extends AddressBook {
 		$changed['added'] = $added;
 		$changed['modified'] = $modified;
 		$changed['deleted'] = $deleted;
-		// Yes
 		return $changed;
 	}
 }
