@@ -82,17 +82,13 @@
 				<NcAppNavigationSettings>
 					<div>
 						<label for="default-quota-multiselect">{{ t('settings', 'Default quota:') }}</label>
-						<NcMultiselect :value="defaultQuota"
+						<NcSelect v-model="defaultQuota"
+							input-id="default-quota-multiselect"
 							:options="quotaOptions"
-							tag-placeholder="create"
 							:placeholder="t('settings', 'Select default quota')"
-							id="default-quota-multiselect"
-							label="label"
-							track-by="id"
-							:allow-empty="false"
-							:taggable="true"
-							@tag="validateQuota"
-							@input="setDefaultQuota" />
+							:close-on-select="false"
+							@open="validateQuota"
+							@option:selected="setDefaultQuota" />
 					</div>
 					<div>
 						<input id="showLanguages"
@@ -153,7 +149,7 @@ import NcAppNavigationSettings from '@nextcloud/vue/dist/Components/NcAppNavigat
 import axios from '@nextcloud/axios'
 import NcContent from '@nextcloud/vue/dist/Components/NcContent.js'
 import { generateUrl } from '@nextcloud/router'
-import NcMultiselect from '@nextcloud/vue/dist/Components/NcMultiselect.js'
+import NcSelect from '@nextcloud/vue/dist/Components/NcSelect.js'
 import Vue from 'vue'
 import VueLocalStorage from 'vue-localstorage'
 
@@ -174,7 +170,7 @@ export default {
 		NcAppNavigationSettings,
 		NcContent,
 		GroupListItem,
-		NcMultiselect,
+		NcSelect,
 		UserList,
 	},
 	props: {
