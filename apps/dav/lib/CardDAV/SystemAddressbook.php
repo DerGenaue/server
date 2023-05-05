@@ -68,6 +68,7 @@ class SystemAddressbook extends AddressBook {
 	/**
 	 * @param array $paths
 	 * @return Card[]
+	 * @throws NotFound
 	 */
 	public function getMultipleChildren($paths): array {
 		if (!$this->isFederation()) {
@@ -76,27 +77,16 @@ class SystemAddressbook extends AddressBook {
 
 		$objs = $this->carddavBackend->getMultipleCards($this->addressBookInfo['id'], $paths);
 		$children = [];
+		/** @var array $obj */
 		foreach ($objs as $obj) {
-			$obj['acl'] = $this->getChildACL();
-			$cardData = $obj['carddata'];
-			/** @var VCard $vCard */
-			$vCard = Reader::read($cardData);
-			foreach ($vCard->children() as $child) {
-				$scope = $child->offsetGet('X-NC-SCOPE');
-				if ($scope !== null && $scope->getValue() === IAccountManager::SCOPE_LOCAL) {
-					$vCard->remove($child);
-				}
+			if (empty($obj)) {
+				continue;
 			}
-			$messages = $vCard->validate();
-			if (!empty($messages)) {
-				// If the validation doesn't work the card is indeed "not found"
-				// even if it might exist in the local backend.
-				// This can happen when a user sets the required properties
-				// FN, N to a local scope only.
-				// @see https://github.com/nextcloud/server/issues/38042
+			$carddata = $this->extractCarddata($obj);
+			if (empty($carddata)) {
 				continue;
 			} else {
-				$obj['carddata'] = $vCard->serialize();
+				$obj['carddata'] = $carddata;
 			}
 			$children[] = new Card($this->carddavBackend, $this->addressBookInfo, $obj);
 		}
@@ -118,26 +108,11 @@ class SystemAddressbook extends AddressBook {
 		if (!$obj) {
 			throw new NotFound('Card not found');
 		}
-		$obj['acl'] = $this->getChildACL();
-		$cardData = $obj['carddata'];
-		/** @var VCard $vCard */
-		$vCard = Reader::read($cardData);
-		foreach ($vCard->children() as $child) {
-			$scope = $child->offsetGet('X-NC-SCOPE');
-			if ($scope !== null && $scope->getValue() === IAccountManager::SCOPE_LOCAL) {
-				$vCard->remove($child);
-			}
-		}
-		$messages = $vCard->validate();
-		if (!empty($messages)) {
-			// If the validation doesn't work the card is indeed "forbidden"
-			// even if it might exist in the local backend.
-			// This can happen when a user sets the required properties
-			// FN, N to a local scope only.
-			// @see https://github.com/nextcloud/server/issues/38042
+		$carddata = $this->extractCarddata($obj);
+		if (empty($carddata)) {
 			throw new Forbidden();
 		} else {
-			$obj['carddata'] = $vCard->serialize();
+			$obj['carddata'] = $carddata;
 		}
 		return new Card($this->carddavBackend, $this->addressBookInfo, $obj);
 	}
@@ -221,5 +196,36 @@ class SystemAddressbook extends AddressBook {
 		}
 
 		return true;
+	}
+
+	/**
+	 * If the validation doesn't work the card is "not found" so we
+	 * return empty carddata even if the carddata might exist in the local backend.
+	 * This can happen when a user sets the required properties
+	 * FN, N to a local scope only but the request is from
+	 * a federated share.
+	 *
+	 * @see https://github.com/nextcloud/server/issues/38042
+	 *
+	 * @param array $obj
+	 * @return string|null
+	 */
+	private function extractCarddata(array $obj): ?string {
+		$obj['acl'] = $this->getChildACL();
+		$cardData = $obj['carddata'];
+		/** @var VCard $vCard */
+		$vCard = Reader::read($cardData);
+		foreach ($vCard->children() as $child) {
+			$scope = $child->offsetGet('X-NC-SCOPE');
+			if ($scope !== null && $scope->getValue() === IAccountManager::SCOPE_LOCAL) {
+				$vCard->remove($child);
+			}
+		}
+		$messages = $vCard->validate();
+		if (!empty($messages)) {
+			return null;
+		}
+
+		return $vCard->serialize();
 	}
 }
