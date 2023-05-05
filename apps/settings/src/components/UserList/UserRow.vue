@@ -208,11 +208,12 @@
 				:close-on-select="true"
 				:user-select="true"
 				:options="possibleManagers"
-				:placeholder="t('settings', 'Select user manager')"
-				:value="currentManager"
+				:placeholder="t('settings', 'Select manager')"
+				v-model="currentManager"
 				class="multiselect-vue"
 				label="displayname"
 				track-by="id"
+				@search-change="searchUserManager"
 				@remove="updateUserManager"
 				@select="updateUserManager">
 				<span slot="noResult">{{ t('settings', 'No results') }}</span>
@@ -322,6 +323,8 @@ export default {
 			rand: parseInt(Math.random() * 1000),
 			openedMenu: false,
 			feedbackMessage: '',
+			possibleManagers: [],
+			currentManager: '',
 			editing: false,
 			loading: {
 				all: false,
@@ -339,13 +342,14 @@ export default {
 			},
 		}
 	},
+	async beforeMount() {
+		await this.searchUserManager()
+		if(!!this.user.manager){
+			await this.initManager(this.user.manager)
+		}
+	},
 	computed: {
-		possibleManagers() {
-			return this.users.filter((user) => user.id !== this.user.id)
-		},
-		currentManager() {
-			return this.possibleManagers.find((manager) => manager.id === this.user.manager)
-		},
+		
 		/* USER POPOVERMENU ACTIONS */
 		userActions() {
 			const actions = [
@@ -410,15 +414,32 @@ export default {
 				true
 			)
 		},
+
+		filterManagers(managers) {
+			return managers.filter((manager) => manager.id !== this.user.id)
+		},
+		async initManager(userId){
+			await this.$store.dispatch('getUser', userId).then(response=>{
+				this.currentManager=response?.data.ocs.data
+			})
+		},
+		async searchUserManager(query){
+			await this.$store.dispatch('searchUsers', {offset:0,limit:10,search:query}).then(response=>{
+				const users=response?.data? this.filterManagers(Object.values(response?.data.ocs.data.users)): []
+				if(users.length>0){
+					this.possibleManagers=users
+				}
+			})
+		},
+
 		updateUserManager(manager) {
 			this.loading.manager = true
 			this.$store.dispatch('setUserData', {
 				userid: this.user.id,
 				key: 'manager',
-				value: manager.id,
+				value: !!this.currentManager?this.currentManager.id: '',
 			}).then(() => {
 				this.loading.manager = false
-				this.$refs.manager.value = manager
 			})
 		},
 

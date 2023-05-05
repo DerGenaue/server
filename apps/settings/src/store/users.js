@@ -253,6 +253,35 @@ let searchRequestCancelSource = null
 
 const actions = {
 
+
+	/**
+	 * search users
+	 *
+	 * @param {object} context store context
+	 * @param {object} options destructuring object
+	 * @param {number} options.offset List offset to request
+	 * @param {number} options.limit List number to return from offset
+	 * @param {string} options.search Search amongst users
+	 * @return {Promise}
+	 */
+	searchUsers(context, { offset, limit, search }) {
+		search = typeof search === 'string' ? search : ''
+
+		return api.get(generateOcsUrl('cloud/users/details?offset={offset}&limit={limit}&search={search}', { offset, limit, search })).catch((error) => {
+				if (!axios.isCancel(error)) {
+					context.commit('API_FAILURE', error)
+				}
+			})
+	},
+
+	getUser(context,userId) {
+		return api.get(generateOcsUrl(`cloud/users/${userId}`)).catch((error) => {
+			if (!axios.isCancel(error)) {
+				context.commit('API_FAILURE', error)
+			}
+		})
+	},
+
 	/**
 	 * Get all users with full details
 	 *
