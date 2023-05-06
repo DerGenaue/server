@@ -205,11 +205,11 @@
 		</div>
 		<div :class="{'icon-loading-small': loading.manager}" class="managers">
 			<NcMultiselect ref="manager"
+				v-model="currentManager"
 				:close-on-select="true"
 				:user-select="true"
 				:options="possibleManagers"
 				:placeholder="t('settings', 'Select manager')"
-				v-model="currentManager"
 				class="multiselect-vue"
 				label="displayname"
 				track-by="id"
@@ -342,14 +342,8 @@ export default {
 			},
 		}
 	},
-	async beforeMount() {
-		await this.searchUserManager()
-		if(!!this.user.manager){
-			await this.initManager(this.user.manager)
-		}
-	},
 	computed: {
-		
+
 		/* USER POPOVERMENU ACTIONS */
 		userActions() {
 			const actions = [
@@ -378,6 +372,12 @@ export default {
 			}
 			return actions.concat(this.externalActions)
 		},
+	},
+	async beforeMount() {
+		await this.searchUserManager()
+		if (this.user.manager) {
+			await this.initManager(this.user.manager)
+		}
 	},
 
 	methods: {
@@ -418,16 +418,16 @@ export default {
 		filterManagers(managers) {
 			return managers.filter((manager) => manager.id !== this.user.id)
 		},
-		async initManager(userId){
-			await this.$store.dispatch('getUser', userId).then(response=>{
-				this.currentManager=response?.data.ocs.data
+		async initManager(userId) {
+			await this.$store.dispatch('getUser', userId).then(response => {
+				this.currentManager = response?.data.ocs.data
 			})
 		},
-		async searchUserManager(query){
-			await this.$store.dispatch('searchUsers', {offset:0,limit:10,search:query}).then(response=>{
-				const users=response?.data? this.filterManagers(Object.values(response?.data.ocs.data.users)): []
-				if(users.length>0){
-					this.possibleManagers=users
+		async searchUserManager(query) {
+			await this.$store.dispatch('searchUsers', { offset: 0, limit: 10, search: query }).then(response => {
+				const users = response?.data ? this.filterManagers(Object.values(response?.data.ocs.data.users)) : []
+				if (users.length > 0) {
+					this.possibleManagers = users
 				}
 			})
 		},
@@ -437,7 +437,7 @@ export default {
 			this.$store.dispatch('setUserData', {
 				userid: this.user.id,
 				key: 'manager',
-				value: !!this.currentManager?this.currentManager.id: '',
+				value: this.currentManager ? this.currentManager.id : '',
 			}).then(() => {
 				this.loading.manager = false
 			})
